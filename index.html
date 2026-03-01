@@ -5,186 +5,128 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Altos de Podestá - Mapa del Barrio</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', Arial, sans-serif;
-            background-color: #f0f4f0;
+            font-family: Arial, sans-serif;
+            background: #f0f4f0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-
         header {
-            width: 100%;
-            background: linear-gradient(135deg, #1D653F 0%, #2a8a56 100%);
-            color: #fff;
-            padding: 16px 24px;
-            text-align: center;
+            width: 100%; background: linear-gradient(135deg, #1D653F 0%, #2a8a56 100%);
+            color: #fff; padding: 14px 20px; text-align: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
-
-        header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        header p {
-            font-size: 0.85rem;
-            opacity: 0.85;
-            margin-top: 4px;
-        }
-
-        .map-container {
-            width: 100%;
-            max-width: 900px;
-            margin: 24px auto;
-            padding: 0 16px;
-            flex: 1;
-        }
-
+        header h1 { font-size: 1.4rem; font-weight: 700; }
+        header p { font-size: 0.8rem; opacity: 0.85; margin-top: 2px; }
+        .map-container { width: 100%; max-width: 960px; margin: 16px auto; padding: 0 12px; flex: 1; }
         .map-wrapper {
-            background: #fff;
-            border-radius: 12px;
+            background: #fff; border-radius: 10px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            padding: 16px;
-            overflow: hidden;
+            padding: 10px; overflow: hidden; position: relative;
+            cursor: grab;
         }
-
-        .map-wrapper svg {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .controls {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
+        .map-wrapper:active { cursor: grabbing; }
+        .map-wrapper svg { width: 100%; height: auto; display: block; }
+        .controls { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; justify-content: center; }
         .controls button {
-            padding: 6px 14px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            background: #fff;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-family: 'Inter', Arial, sans-serif;
-            transition: all 0.2s;
+            padding: 5px 12px; border: 1px solid #ccc; border-radius: 6px;
+            background: #fff; cursor: pointer; font-size: 0.78rem;
+            font-family: Arial, sans-serif; transition: all 0.2s;
         }
-
-        .controls button:hover {
-            background: #1D653F;
-            color: #fff;
-            border-color: #1D653F;
+        .controls button:hover { background: #1D653F; color: #fff; border-color: #1D653F; }
+        .controls button.active { background: #1D653F; color: #fff; border-color: #1D653F; }
+        .zoom-controls {
+            display: flex; gap: 4px; margin-left: 12px; align-items: center;
         }
-
-        .controls button.active {
-            background: #1D653F;
-            color: #fff;
-            border-color: #1D653F;
+        .zoom-controls button {
+            width: 30px; height: 30px; font-size: 1.1rem; padding: 0;
+            display: flex; align-items: center; justify-content: center;
         }
-
+        .zoom-info { font-size: 0.7rem; color: #666; min-width: 40px; text-align: center; }
         .legend {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 12px;
-            font-size: 0.75rem;
-            color: #555;
+            display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+            margin-top: 10px; font-size: 0.7rem; color: #555;
         }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .legend-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
-        }
-
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
         .tooltip {
-            position: fixed;
-            background: rgba(29, 29, 27, 0.9);
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.15s;
-            z-index: 1000;
+            position: fixed; background: rgba(29,29,27,0.92); color: #fff;
+            padding: 8px 14px; border-radius: 6px; font-size: 0.78rem;
+            pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 1000;
+            max-width: 220px; line-height: 1.4;
         }
-
-        .tooltip.visible {
-            opacity: 1;
+        .tooltip.visible { opacity: 1; }
+        .info-panel {
+            position: fixed; right: 12px; top: 80px; width: 220px;
+            background: #fff; border-radius: 10px; padding: 14px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15); z-index: 999;
+            display: none; font-size: 0.8rem;
         }
-
-        /* SVG hover effects */
-        svg g[id^="M"] rect {
-            transition: fill 0.2s, stroke 0.2s;
-            cursor: pointer;
+        .info-panel.visible { display: block; }
+        .info-panel h3 { font-size: 0.95rem; margin-bottom: 8px; color: #1D653F; }
+        .info-panel .house-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
+            font-size: 0.65rem; margin-top: 6px;
         }
-
-        svg g[id^="M"]:hover rect {
-            fill: #E8F5E9 !important;
-            stroke: #1D653F !important;
+        .info-panel .side-label { font-weight: 700; font-size: 0.7rem; margin-top: 6px; color: #333; }
+        .info-panel .house-cell {
+            padding: 2px 4px; border-radius: 3px; text-align: center;
+            background: #f5f5f5; border: 1px solid #ddd;
         }
-
-        footer {
-            width: 100%;
-            text-align: center;
-            padding: 16px;
-            font-size: 0.75rem;
-            color: #888;
+        .info-panel .house-cell.h1 { background: #FFCDD2; border-color: #E53935; font-weight: 700; }
+        .info-panel .house-cell.h2 { background: #C8E6C9; border-color: #43A047; font-weight: 700; }
+        .info-panel .close-btn {
+            position: absolute; top: 6px; right: 10px; cursor: pointer;
+            font-size: 1.1rem; color: #999; background: none; border: none;
         }
-
+        svg g[id^="M"] rect { transition: fill 0.2s; cursor: pointer; }
+        svg g[id^="M"]:hover rect { fill: #E8F5E9 !important; stroke: #1D653F !important; }
+        /* House overlay styles */
+        .house-centerline { stroke: #888; stroke-width: 0.4; stroke-dasharray: 1,1; }
+        .house-divider { stroke: #aaa; stroke-width: 0.15; }
+        .house-marker-1 { fill: #E53935; }
+        .house-marker-2 { fill: #43A047; }
+        .house-arrow { fill: #E53935; }
+        /* Street overlay styles */
+        .street-overlay { fill: none; stroke: #4A90D9; stroke-width: 1.2; stroke-opacity: 0.5; }
+        .street-label {
+            font-size: 3px; fill: #4A90D9; font-family: Arial, sans-serif;
+            font-weight: bold; text-anchor: middle;
+        }
+        .street-bidir { font-size: 4px; fill: #4A90D9; font-family: Arial; text-anchor: middle; }
+        footer { width: 100%; text-align: center; padding: 12px; font-size: 0.7rem; color: #888; }
         @media (max-width: 600px) {
-            header h1 {
-                font-size: 1.2rem;
-            }
-            .map-wrapper {
-                padding: 8px;
-                border-radius: 8px;
-            }
-            .controls button {
-                padding: 5px 10px;
-                font-size: 0.7rem;
-            }
+            header h1 { font-size: 1.1rem; }
+            .map-wrapper { padding: 6px; border-radius: 8px; }
+            .controls button { padding: 4px 8px; font-size: 0.68rem; }
+            .info-panel { width: 180px; right: 6px; top: 70px; padding: 10px; }
         }
     </style>
 </head>
 <body>
     <header>
         <h1>Barrio Altos de Podest&aacute;</h1>
-        <p>Mapa interactivo del barrio</p>
+        <p>Mapa interactivo &mdash; Casas, calles y accesos</p>
     </header>
-
     <div class="map-container">
         <div class="controls">
             <button class="active" data-layer="all">Todo</button>
             <button data-layer="manzanas">Manzanas</button>
+            <button data-layer="casas">Casas</button>
             <button data-layer="calles">Calles</button>
             <button data-layer="accesos">Accesos</button>
             <button data-layer="traffic">Tr&aacute;fico</button>
+            <div class="zoom-controls">
+                <button id="zoom-out">&minus;</button>
+                <span class="zoom-info" id="zoom-level">100%</span>
+                <button id="zoom-in">+</button>
+                <button id="zoom-reset">&#8634;</button>
+            </div>
         </div>
-
-        <div class="map-wrapper">
+        <div class="map-wrapper" id="map-wrapper">
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 573.2 704.1" style="enable-background:new 0 0 573.2 704.1;" xml:space="preserve">
 <style type="text/css">
 	.st0{display:none;fill:#E6E6E6;}
@@ -1242,151 +1184,717 @@
 	<path id="st_merge_0019_00000000196927649651841190000017723235641154433412_" class="st44" d="M329.3,411.6" data-role="marker" data-color="red" data-marker-id="10" />
 	<path id="st_merge_0021_00000082352408827041570250000009467160185951433351_" class="st44" d="M314,411.3" data-role="marker" data-color="red" data-marker-id="11" />
 	<path id="st_merge_0021_00000088100254946697603580000000773515802579283617_" class="st44" d="M258,411.3" data-role="marker" data-color="red" data-marker-id="12" />
-	</g></g></svg>
-        </div>
-
+	</g></g></svg>        </div>
         <div class="legend">
-            <div class="legend-item">
-                <div class="legend-dot" style="background: #FFFFFF; border: 2px solid #1D1D1B;"></div>
-                <span>Manzanas / Lotes</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-dot" style="background: #1D653F;"></div>
-                <span>Espacios verdes</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-dot" style="background: #6BBEE2;"></div>
-                <span>Arroyo / Agua</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-dot" style="background: #00FF00;"></div>
-                <span>Sentido tr&aacute;fico (verde)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-dot" style="background: #FF0000;"></div>
-                <span>Sentido tr&aacute;fico (rojo)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-dot" style="background: #EA0022;"></div>
-                <span>Accesos</span>
-            </div>
+            <div class="legend-item"><div class="legend-dot" style="background:#E53935;"></div><span>Casa 1 (inicio)</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#43A047;"></div><span>Casa 2</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#FFFFFF;border:2px solid #1D1D1B;"></div><span>Manzanas</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#1D653F;"></div><span>Espacios verdes</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#4A90D9;"></div><span>Calles (etiquetas)</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#00FF00;"></div><span>Mano &uacute;nica (verde)</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#FF0000;"></div><span>Mano &uacute;nica (rojo)</span></div>
         </div>
     </div>
-
     <div class="tooltip" id="tooltip"></div>
+    <div class="info-panel" id="info-panel">
+        <button class="close-btn" id="close-panel">&times;</button>
+        <h3 id="panel-title">Manzana</h3>
+        <div id="panel-content"></div>
+    </div>
+    <footer>Barrio Altos de Podest&aacute; &mdash; Mapa interactivo con casas y calles</footer>
 
-    <footer>
-        Barrio Altos de Podest&aacute; &mdash; Mapa interactivo
-    </footer>
+<script>
+// ============================================================
+// MANZANA DATA: house counts per manzana
+// ============================================================
+const HOUSE_COUNTS = {
+    3:32, 4:26, 5:32, 6:26, 7:32, 8:32, 9:32, 10:32,
+    11:32, 12:32, 13:32, 14:32, 15:20, 16:20, 17:20, 18:20,
+    19:20, 20:20, 23:32, 24:32, 25:28, 26:28, 27:24, 28:20,
+    29:18, 30:32, 31:32, 32:32, 33:32, 34:32, 35:32, 36:32,
+    37:32, 38:32, 39:32, 40:32, 41:32, 42:32, 43:32, 44:32,
+    45:32, 46:32, 47:32, 48:32, 49:32, 50:26, 51:26, 52:32,
+    53:32, 54:32, 55:32, 56:32, 57:32, 58:22, 59:48, 60:41,
+    61:18, 62:32, 63:32, 64:32, 65:26, 66:26, 67:26, 70:26,
+    75:32, 78:32, 79:32, 80:32, 81:32, 82:32, 83:32, 84:32,
+    85:32, 86:32, 87:32, 88:32, 89:32, 90:32, 91:32, 92:32,
+    93:32, 94:32, 95:32, 96:32, 97:32, 99:32
+};
 
-    <script>
-        // Tooltip for manzanas
-        const tooltip = document.getElementById('tooltip');
-        const manzanas = document.querySelectorAll('svg g[id^="M"]');
+// ============================================================
+// SVG NAMESPACE
+// ============================================================
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.querySelector('.map-wrapper svg');
 
-        manzanas.forEach(m => {
-            m.addEventListener('mouseenter', (e) => {
-                const id = m.id;
-                const num = id.replace('M', '');
-                tooltip.textContent = 'Manzana ' + num;
-                tooltip.classList.add('visible');
-            });
+function createSvgEl(tag, attrs) {
+    const el = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+    return el;
+}
 
-            m.addEventListener('mousemove', (e) => {
-                tooltip.style.left = (e.clientX + 12) + 'px';
-                tooltip.style.top = (e.clientY - 30) + 'px';
-            });
+// ============================================================
+// GENERATE HOUSE OVERLAYS
+// ============================================================
+function generateHouseOverlays() {
+    // Remove previous overlay if exists
+    const old = document.getElementById('house-overlays');
+    if (old) old.remove();
 
-            m.addEventListener('mouseleave', () => {
-                tooltip.classList.remove('visible');
-            });
+    const g = createSvgEl('g', { id: 'house-overlays' });
+
+    for (const [numStr, houseCount] of Object.entries(HOUSE_COUNTS)) {
+        const num = parseInt(numStr);
+        const padded = num < 10 ? '0' + num : '' + num;
+        const gEl = document.getElementById('M' + padded) || document.getElementById('M' + num);
+        if (!gEl) continue;
+
+        const rect = gEl.querySelector('rect');
+        if (!rect) continue;
+
+        const x = parseFloat(rect.getAttribute('x'));
+        const y = parseFloat(rect.getAttribute('y'));
+        const w = parseFloat(rect.getAttribute('width'));
+        const h = parseFloat(rect.getAttribute('height'));
+
+        const isVertical = h > w;
+        const halfHouses = Math.ceil(houseCount / 2);
+        const otherHalf = houseCount - halfHouses;
+
+        const mg = createSvgEl('g', {
+            id: 'houses-' + num,
+            class: 'house-overlay-group',
+            'data-manzana': num,
+            'data-houses': houseCount
         });
 
-        // Layer toggle buttons
-        const buttons = document.querySelectorAll('.controls button');
-        const layers = {
-            manzanas: () => document.querySelectorAll('svg g[id^="M"]'),
-            calles: () => document.querySelectorAll('#streets, #barriers, #arrows'),
-            accesos: () => document.querySelectorAll('#Acceso_Principal, #Acceso_Florida'),
-            traffic: () => document.querySelectorAll('#traffic')
-        };
+        if (isVertical) {
+            // VERTICAL manzana: long sides are left and right
+            // House 1 at top-right, going DOWN right side
+            // Then UP the left side
+            const cx = x + w / 2;
 
-        const allLayerSelectors = [
-            'svg g[id^="M"]',
-            '#streets', '#barriers', '#arrows',
-            '#Acceso_Principal', '#Acceso_Florida',
-            '#traffic',
-            '#greens_horizontal', '#greens_between', '#greens_vertical',
-            '#CAPILLA', '#CAPILLA-2', '#Capilla',
-            '#PLAZA_BENITEZ', '#PLAZA_SECUNDARIA',
-            '#Arroyo_Moron', '#AV\\._Bernabe',
-            '#Barrio_TAG', '#Brujula',
-            '#ARBOLES', '#JARDIN_929', '#Secundaria',
-            '#controls', '#gps_points', '#overlays',
-            '#Fondo_balnco_mapa_00000093898162106876678600000007050969107240432524_'
-        ];
+            // Centerline (vertical)
+            mg.appendChild(createSvgEl('line', {
+                x1: cx, y1: y, x2: cx, y2: y + h,
+                class: 'house-centerline'
+            }));
 
-        function showAll() {
-            allLayerSelectors.forEach(sel => {
-                document.querySelectorAll(sel).forEach(el => {
-                    el.style.opacity = '1';
-                    el.style.transition = 'opacity 0.3s';
-                });
-            });
+            // Division lines on right side (houses 1 to halfHouses)
+            const segA = h / halfHouses;
+            for (let i = 1; i < halfHouses; i++) {
+                mg.appendChild(createSvgEl('line', {
+                    x1: cx, y1: y + i * segA, x2: x + w, y2: y + i * segA,
+                    class: 'house-divider'
+                }));
+            }
+
+            // Division lines on left side (houses halfHouses+1 to total)
+            const segB = h / otherHalf;
+            for (let i = 1; i < otherHalf; i++) {
+                mg.appendChild(createSvgEl('line', {
+                    x1: x, y1: y + i * segB, x2: cx, y2: y + i * segB,
+                    class: 'house-divider'
+                }));
+            }
+
+            // House 1 marker (red) at top-right
+            mg.appendChild(createSvgEl('rect', {
+                x: x + w - 3.5, y: y + 0.5, width: 3, height: segA - 0.5,
+                class: 'house-marker-1', rx: 0.5, opacity: 0.7
+            }));
+
+            // House 2 marker (green) below house 1
+            mg.appendChild(createSvgEl('rect', {
+                x: x + w - 3.5, y: y + segA + 0.3, width: 3, height: segA - 0.5,
+                class: 'house-marker-2', rx: 0.5, opacity: 0.7
+            }));
+
+            // Direction arrow on right side (pointing down)
+            const arrowY = y + h * 0.5;
+            mg.appendChild(createSvgEl('polygon', {
+                points: `${x+w-1.5},${arrowY-2} ${x+w-0.3},${arrowY} ${x+w-1.5},${arrowY} ${x+w-1.5},${arrowY-2}`,
+                fill: '#E53935', opacity: 0.6
+            }));
+
+            // Last house of side A marker (at bottom-right, small)
+            mg.appendChild(createSvgEl('line', {
+                x1: x + w - 4, y1: y + h - 0.3, x2: x + w, y2: y + h - 0.3,
+                stroke: '#E53935', 'stroke-width': 0.4, opacity: 0.6
+            }));
+
+            // First house of side B marker (at bottom-left)
+            mg.appendChild(createSvgEl('line', {
+                x1: x, y1: y + h - 0.3, x2: x + 4, y2: y + h - 0.3,
+                stroke: '#FF9800', 'stroke-width': 0.4, opacity: 0.6
+            }));
+
+            // Labels: house ranges per side (visible when zoomed)
+            const labelSize = 2.5;
+            // Right side label
+            mg.appendChild(createSvgEl('text', {
+                x: x + w + 1, y: y + h / 2 + 1,
+                'font-size': labelSize, fill: '#E53935', 'font-family': 'Arial',
+                'font-weight': 'bold', opacity: 0.8,
+                transform: `rotate(90, ${x + w + 1}, ${y + h / 2 + 1})`
+            })).textContent = `1-${halfHouses}`;
+
+            // Left side label
+            mg.appendChild(createSvgEl('text', {
+                x: x - 1, y: y + h / 2 + 1,
+                'font-size': labelSize, fill: '#4A90D9', 'font-family': 'Arial',
+                'font-weight': 'bold', 'text-anchor': 'end', opacity: 0.8,
+                transform: `rotate(90, ${x - 1}, ${y + h / 2 + 1})`
+            })).textContent = `${halfHouses + 1}-${houseCount}`;
+
+        } else {
+            // HORIZONTAL manzana: long sides are top and bottom
+            // House 1 at top-left, going RIGHT along top
+            // Then LEFT along bottom
+            const cy = y + h / 2;
+
+            // Centerline (horizontal)
+            mg.appendChild(createSvgEl('line', {
+                x1: x, y1: cy, x2: x + w, y2: cy,
+                class: 'house-centerline'
+            }));
+
+            // Division lines on top side
+            const segA = w / halfHouses;
+            for (let i = 1; i < halfHouses; i++) {
+                mg.appendChild(createSvgEl('line', {
+                    x1: x + i * segA, y1: y, x2: x + i * segA, y2: cy,
+                    class: 'house-divider'
+                }));
+            }
+
+            // Division lines on bottom side
+            const segB = w / otherHalf;
+            for (let i = 1; i < otherHalf; i++) {
+                mg.appendChild(createSvgEl('line', {
+                    x1: x + i * segB, y1: cy, x2: x + i * segB, y2: y + h,
+                    class: 'house-divider'
+                }));
+            }
+
+            // House 1 marker (red) at top-left
+            mg.appendChild(createSvgEl('rect', {
+                x: x + 0.5, y: y + 0.5, width: segA - 0.5, height: 3,
+                class: 'house-marker-1', rx: 0.5, opacity: 0.7
+            }));
+
+            // House 2 marker (green) next to house 1
+            mg.appendChild(createSvgEl('rect', {
+                x: x + segA + 0.3, y: y + 0.5, width: segA - 0.5, height: 3,
+                class: 'house-marker-2', rx: 0.5, opacity: 0.7
+            }));
+
+            // Direction arrow on top side (pointing right)
+            const arrowX = x + w * 0.5;
+            mg.appendChild(createSvgEl('polygon', {
+                points: `${arrowX},${y+1} ${arrowX+2},${y+2} ${arrowX},${y+2}`,
+                fill: '#E53935', opacity: 0.6
+            }));
+
+            // Labels
+            const labelSize = 2.5;
+            mg.appendChild(createSvgEl('text', {
+                x: x + w / 2, y: y - 1,
+                'font-size': labelSize, fill: '#E53935', 'font-family': 'Arial',
+                'font-weight': 'bold', 'text-anchor': 'middle', opacity: 0.8
+            })).textContent = `1-${halfHouses}`;
+
+            mg.appendChild(createSvgEl('text', {
+                x: x + w / 2, y: y + h + 3,
+                'font-size': labelSize, fill: '#4A90D9', 'font-family': 'Arial',
+                'font-weight': 'bold', 'text-anchor': 'middle', opacity: 0.8
+            })).textContent = `${halfHouses + 1}-${houseCount}`;
         }
 
-        function dimAll() {
-            allLayerSelectors.forEach(sel => {
-                document.querySelectorAll(sel).forEach(el => {
-                    el.style.opacity = '0.15';
-                    el.style.transition = 'opacity 0.3s';
-                });
-            });
-        }
+        g.appendChild(mg);
+    }
 
-        function highlightLayer(layerName) {
-            if (layerName === 'all') {
-                showAll();
-                return;
-            }
-            dimAll();
-            // Always show background elements
-            document.querySelectorAll('#Barrio_TAG, #Brujula, #AV\\._Bernabe, #Arroyo_Moron, #Fondo_balnco_mapa_00000093898162106876678600000007050969107240432524_').forEach(el => {
-                el.style.opacity = '1';
-            });
+    svg.appendChild(g);
+}
 
-            if (layers[layerName]) {
-                layers[layerName]().forEach(el => {
-                    el.style.opacity = '1';
-                });
-            }
+// ============================================================
+// GENERATE STREET OVERLAYS
+// ============================================================
+function generateStreetOverlays() {
+    const old = document.getElementById('street-overlays');
+    if (old) old.remove();
 
-            if (layerName === 'manzanas') {
-                document.querySelectorAll('#greens_horizontal, #greens_between, #greens_vertical, #PLAZA_BENITEZ, #PLAZA_SECUNDARIA, #CAPILLA, #CAPILLA-2, #Capilla, #JARDIN_929, #Secundaria').forEach(el => {
-                    el.style.opacity = '1';
-                });
-            }
+    const g = createSvgEl('g', { id: 'street-overlays' });
 
-            if (layerName === 'calles') {
-                document.querySelectorAll('#greens_horizontal, #greens_between, #greens_vertical').forEach(el => {
-                    el.style.opacity = '1';
-                });
-            }
+    // Define ALL streets between manzanas
+    // Vertical streets (N-S corridors)
+    const verticalStreets = [
+        { id: 'CV-01', x: 109, y1: 361, y2: 413, label: 'CV-01' },
+        { id: 'CV-02', x: 134, y1: 361, y2: 413, label: 'CV-02' },
+        { id: 'CV-03', x: 162, y1: 149, y2: 407, label: 'CV-03' },
+        { id: 'CV-04', x: 188, y1: 149, y2: 366, label: 'CV-04' },
+        { id: 'CV-05', x: 216, y1: 110, y2: 366, label: 'CV-05' },
+        { id: 'CV-06', x: 244, y1: 67, y2: 366, label: 'CV-06' },
+        { id: 'CV-07', x: 270, y1: 67, y2: 366, label: 'CV-07' },
+        { id: 'CV-08', x: 297, y1: 67, y2: 366, label: 'CV-08' },
+        { id: 'CV-09', x: 323, y1: 67, y2: 366, label: 'CV-09' },
+        { id: 'CV-10', x: 351, y1: 67, y2: 366, label: 'CV-10' },
+        { id: 'CV-11', x: 378, y1: 67, y2: 366, label: 'CV-11' },
+        { id: 'CV-12', x: 407, y1: 105, y2: 604, label: 'CV-12', oneway: true },
+        { id: 'CV-13', x: 416, y1: 105, y2: 604, label: 'CV-13', oneway: true },
+        { id: 'CV-14', x: 443, y1: 105, y2: 403, label: 'CV-14' },
+        { id: 'CV-15', x: 476, y1: 152, y2: 578, label: 'CV-15' },
+    ];
 
-            if (layerName === 'accesos') {
-                document.querySelectorAll('#barriers').forEach(el => {
-                    el.style.opacity = '0.5';
-                });
-            }
-        }
+    // Horizontal streets (E-W corridors)
+    const horizontalStreets = [
+        { id: 'CH-01', y: 70, x1: 240, x2: 402, label: 'CH-01' },
+        { id: 'CH-02', y: 111, x1: 216, x2: 467, label: 'CH-02' },
+        { id: 'CH-03', y: 152, x1: 157, x2: 467, label: 'CH-03' },
+        { id: 'CH-04', y: 194, x1: 157, x2: 467, label: 'CH-04' },
+        { id: 'CH-05', y: 239, x1: 157, x2: 467, label: 'CH-05', oneway: true },
+        { id: 'CH-06', y: 285, x1: 185, x2: 467, label: 'CH-06' },
+        { id: 'CH-07', y: 325, x1: 185, x2: 467, label: 'CH-07' },
+        { id: 'CH-08', y: 365, x1: 106, x2: 467, label: 'CH-08' },
+        { id: 'CH-09', y: 410, x1: 106, x2: 418, label: 'CH-09', oneway: true },
+        { id: 'CH-10', y: 438, x1: 113, x2: 481, label: 'CH-10' },
+        { id: 'CH-11', y: 466, x1: 132, x2: 481, label: 'CH-11' },
+        { id: 'CH-12', y: 494, x1: 180, x2: 481, label: 'CH-12' },
+        { id: 'CH-13', y: 523, x1: 331, x2: 481, label: 'CH-13' },
+        { id: 'CH-14', y: 551, x1: 336, x2: 481, label: 'CH-14' },
+        { id: 'CH-15', y: 578, x1: 341, x2: 481, label: 'CH-15' },
+    ];
 
-        buttons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                buttons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                highlightLayer(btn.dataset.layer);
-            });
+    // Additional entrecalle streets between manzanas in the same row
+    const entrecalles = [
+        // Between M78-M75 (vertical segment)
+        { id: 'EC-01', x: 134, y1: 367, y2: 403, label: 'EC-01', dir: 'v' },
+        // Between M75-M57
+        { id: 'EC-02', x: 162, y1: 367, y2: 403, label: 'EC-02', dir: 'v' },
+        // Between M57-M56
+        { id: 'EC-03', x: 200, y1: 367, y2: 403, label: 'EC-03', dir: 'v' },
+        // Between M56-M55
+        { id: 'EC-04', x: 229, y1: 367, y2: 403, label: 'EC-04', dir: 'v' },
+        // Between M55 and Plaza
+        { id: 'EC-05', x: 256, y1: 367, y2: 403, label: 'EC-05', dir: 'v' },
+        // Between M37-M33
+        { id: 'EC-06', x: 354, y1: 367, y2: 403, label: 'EC-06', dir: 'v' },
+        // Between M33-M23
+        { id: 'EC-07', x: 382, y1: 367, y2: 403, label: 'EC-07', dir: 'v' },
+        // Between M59-M58 (horizontal connector)
+        { id: 'EC-08', y: 424, x1: 253, x2: 258, label: 'EC-08', dir: 'h' },
+        // Between M24-M15 area
+        { id: 'EC-09', x: 415, y1: 414, y2: 578, label: 'EC-09', dir: 'v' },
+        // Streets between M15-M20 rows
+        { id: 'EC-10', y: 441, x1: 320, x2: 481, label: 'EC-10', dir: 'h' },
+        { id: 'EC-11', y: 470, x1: 320, x2: 481, label: 'EC-11', dir: 'h' },
+        { id: 'EC-12', y: 499, x1: 333, x2: 481, label: 'EC-12', dir: 'h' },
+        { id: 'EC-13', y: 527, x1: 340, x2: 481, label: 'EC-13', dir: 'h' },
+        { id: 'EC-14', y: 556, x1: 345, x2: 481, label: 'EC-14', dir: 'h' },
+        // Vertical streets in south area between M24-M29 and M15-M20
+        { id: 'EC-15', x: 317, y1: 438, y2: 578, label: 'EC-15', dir: 'v' },
+        // Entrecalles between M60 and below
+        { id: 'EC-16', y: 441, x1: 132, x2: 284, label: 'EC-16', dir: 'h' },
+        { id: 'EC-17', y: 466, x1: 132, x2: 284, label: 'EC-17', dir: 'h' },
+        { id: 'EC-18', y: 493, x1: 180, x2: 232, label: 'EC-18', dir: 'h' },
+    ];
+
+    // Draw vertical streets
+    verticalStreets.forEach(s => {
+        if (s.oneway) return; // Skip one-way, already shown in traffic layer
+        const line = createSvgEl('line', {
+            x1: s.x, y1: s.y1, x2: s.x, y2: s.y2,
+            class: 'street-overlay', 'stroke-dasharray': '3,2'
         });
-    </script>
+        g.appendChild(line);
+
+        // Bidirectional arrow
+        const midY = (s.y1 + s.y2) / 2;
+        const bidir = createSvgEl('text', {
+            x: s.x, y: midY, class: 'street-bidir',
+            'dominant-baseline': 'central'
+        });
+        bidir.textContent = '\u2195'; // ↕
+        g.appendChild(bidir);
+
+        // Label
+        const lbl = createSvgEl('text', {
+            x: s.x + 2, y: s.y1 + 6, class: 'street-label',
+            transform: `rotate(90, ${s.x + 2}, ${s.y1 + 6})`
+        });
+        lbl.textContent = s.label;
+        g.appendChild(lbl);
+    });
+
+    // Draw horizontal streets
+    horizontalStreets.forEach(s => {
+        if (s.oneway) return;
+        const line = createSvgEl('line', {
+            x1: s.x1, y1: s.y, x2: s.x2, y2: s.y,
+            class: 'street-overlay', 'stroke-dasharray': '3,2'
+        });
+        g.appendChild(line);
+
+        const midX = (s.x1 + s.x2) / 2;
+        const bidir = createSvgEl('text', {
+            x: midX, y: s.y, class: 'street-bidir',
+            'dominant-baseline': 'central'
+        });
+        bidir.textContent = '\u2194'; // ↔
+        g.appendChild(bidir);
+
+        const lbl = createSvgEl('text', {
+            x: s.x1 + 4, y: s.y - 1.5, class: 'street-label'
+        });
+        lbl.textContent = s.label;
+        g.appendChild(lbl);
+    });
+
+    // Draw entrecalles
+    entrecalles.forEach(s => {
+        if (s.dir === 'v') {
+            const line = createSvgEl('line', {
+                x1: s.x, y1: s.y1, x2: s.x, y2: s.y2,
+                stroke: '#9C27B0', 'stroke-width': 0.8, 'stroke-opacity': 0.4,
+                fill: 'none', 'stroke-dasharray': '2,1'
+            });
+            g.appendChild(line);
+
+            const midY = (s.y1 + s.y2) / 2;
+            const bidir = createSvgEl('text', {
+                x: s.x, y: midY,
+                'font-size': '3', fill: '#9C27B0', 'font-family': 'Arial',
+                'text-anchor': 'middle', 'dominant-baseline': 'central'
+            });
+            bidir.textContent = '\u2195';
+            g.appendChild(bidir);
+
+            const lbl = createSvgEl('text', {
+                x: s.x + 1.5, y: s.y1 + 3,
+                'font-size': '2.2', fill: '#9C27B0', 'font-family': 'Arial',
+                'font-weight': 'bold',
+                transform: `rotate(90, ${s.x + 1.5}, ${s.y1 + 3})`
+            });
+            lbl.textContent = s.label;
+            g.appendChild(lbl);
+        } else {
+            const line = createSvgEl('line', {
+                x1: s.x1, y1: s.y, x2: s.x2, y2: s.y,
+                stroke: '#9C27B0', 'stroke-width': 0.8, 'stroke-opacity': 0.4,
+                fill: 'none', 'stroke-dasharray': '2,1'
+            });
+            g.appendChild(line);
+
+            const midX = (s.x1 + s.x2) / 2;
+            const bidir = createSvgEl('text', {
+                x: midX, y: s.y,
+                'font-size': '3', fill: '#9C27B0', 'font-family': 'Arial',
+                'text-anchor': 'middle', 'dominant-baseline': 'central'
+            });
+            bidir.textContent = '\u2194';
+            g.appendChild(bidir);
+
+            const lbl = createSvgEl('text', {
+                x: s.x1 + 3, y: s.y - 1,
+                'font-size': '2.2', fill: '#9C27B0', 'font-family': 'Arial',
+                'font-weight': 'bold'
+            });
+            lbl.textContent = s.label;
+            g.appendChild(lbl);
+        }
+    });
+
+    svg.appendChild(g);
+}
+
+// ============================================================
+// ZOOM & PAN
+// ============================================================
+let scale = 1;
+let panX = 0, panY = 0;
+let isPanning = false;
+let startX, startY;
+const wrapper = document.getElementById('map-wrapper');
+
+function updateTransform() {
+    svg.style.transform = `scale(${scale}) translate(${panX}px, ${panY}px)`;
+    svg.style.transformOrigin = 'center center';
+    document.getElementById('zoom-level').textContent = Math.round(scale * 100) + '%';
+}
+
+document.getElementById('zoom-in').addEventListener('click', () => {
+    scale = Math.min(scale * 1.3, 8);
+    updateTransform();
+});
+document.getElementById('zoom-out').addEventListener('click', () => {
+    scale = Math.max(scale / 1.3, 0.5);
+    updateTransform();
+});
+document.getElementById('zoom-reset').addEventListener('click', () => {
+    scale = 1; panX = 0; panY = 0;
+    updateTransform();
+});
+
+wrapper.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    scale = Math.max(0.5, Math.min(8, scale * delta));
+    updateTransform();
+}, { passive: false });
+
+wrapper.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    isPanning = true;
+    startX = e.clientX - panX * scale;
+    startY = e.clientY - panY * scale;
+});
+window.addEventListener('mousemove', (e) => {
+    if (!isPanning) return;
+    panX = (e.clientX - startX) / scale;
+    panY = (e.clientY - startY) / scale;
+    updateTransform();
+});
+window.addEventListener('mouseup', () => { isPanning = false; });
+
+// Touch support for mobile
+let lastTouchDist = 0;
+wrapper.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+        isPanning = true;
+        startX = e.touches[0].clientX - panX * scale;
+        startY = e.touches[0].clientY - panY * scale;
+    } else if (e.touches.length === 2) {
+        lastTouchDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+        );
+    }
+}, { passive: true });
+wrapper.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 1 && isPanning) {
+        panX = (e.touches[0].clientX - startX) / scale;
+        panY = (e.touches[0].clientY - startY) / scale;
+        updateTransform();
+    } else if (e.touches.length === 2) {
+        const dist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+        );
+        if (lastTouchDist > 0) {
+            scale = Math.max(0.5, Math.min(8, scale * (dist / lastTouchDist)));
+            updateTransform();
+        }
+        lastTouchDist = dist;
+    }
+}, { passive: true });
+wrapper.addEventListener('touchend', () => { isPanning = false; lastTouchDist = 0; });
+
+// ============================================================
+// TOOLTIP & INFO PANEL
+// ============================================================
+const tooltip = document.getElementById('tooltip');
+const infoPanel = document.getElementById('info-panel');
+
+function getHouseAtPosition(manzana, num, clientX, clientY) {
+    const gEl = document.getElementById('M' + (num < 10 ? '0' + num : num)) || document.getElementById('M' + num);
+    if (!gEl) return null;
+    const rect = gEl.querySelector('rect');
+    if (!rect) return null;
+
+    const svgRect = rect.getBoundingClientRect();
+    const relX = (clientX - svgRect.left) / svgRect.width;
+    const relY = (clientY - svgRect.top) / svgRect.height;
+
+    const houseCount = HOUSE_COUNTS[num];
+    const w = parseFloat(rect.getAttribute('width'));
+    const h = parseFloat(rect.getAttribute('height'));
+    const isVertical = h > w;
+    const halfHouses = Math.ceil(houseCount / 2);
+    const otherHalf = houseCount - halfHouses;
+
+    if (isVertical) {
+        // Right side: houses 1-halfHouses (top to bottom)
+        // Left side: houses halfHouses+1 to total (bottom to top)
+        if (relX > 0.5) {
+            const houseIdx = Math.floor(relY * halfHouses);
+            return Math.min(houseIdx + 1, halfHouses);
+        } else {
+            const houseIdx = Math.floor((1 - relY) * otherHalf);
+            return Math.min(halfHouses + houseIdx + 1, houseCount);
+        }
+    } else {
+        // Top side: houses 1-halfHouses (left to right)
+        // Bottom side: houses halfHouses+1 to total (right to left)
+        if (relY < 0.5) {
+            const houseIdx = Math.floor(relX * halfHouses);
+            return Math.min(houseIdx + 1, halfHouses);
+        } else {
+            const houseIdx = Math.floor((1 - relX) * otherHalf);
+            return Math.min(halfHouses + houseIdx + 1, houseCount);
+        }
+    }
+}
+
+// Enhanced tooltip for manzanas
+document.querySelectorAll('svg g[id^="M"]').forEach(gEl => {
+    const match = gEl.id.match(/M(\d+)/);
+    if (!match) return;
+    const num = parseInt(match[1]);
+    if (!HOUSE_COUNTS[num]) return;
+
+    gEl.addEventListener('mouseenter', () => {
+        tooltip.classList.add('visible');
+    });
+
+    gEl.addEventListener('mousemove', (e) => {
+        const houseNum = getHouseAtPosition(gEl, num, e.clientX, e.clientY);
+        const total = HOUSE_COUNTS[num];
+        const half = Math.ceil(total / 2);
+        let side = '';
+        if (houseNum && houseNum <= half) {
+            const rect = gEl.querySelector('rect');
+            const w = parseFloat(rect.getAttribute('width'));
+            const h = parseFloat(rect.getAttribute('height'));
+            side = h > w ? ' (lado derecho)' : ' (lado superior)';
+        } else if (houseNum) {
+            const rect = gEl.querySelector('rect');
+            const w = parseFloat(rect.getAttribute('width'));
+            const h = parseFloat(rect.getAttribute('height'));
+            side = h > w ? ' (lado izquierdo)' : ' (lado inferior)';
+        }
+        tooltip.innerHTML = `<b>Manzana ${num}</b> &middot; Casa ${houseNum || '?'}${side}<br><small>${total} casas total (1-${half} / ${half+1}-${total})</small>`;
+        tooltip.style.left = (e.clientX + 14) + 'px';
+        tooltip.style.top = (e.clientY - 40) + 'px';
+    });
+
+    gEl.addEventListener('mouseleave', () => {
+        tooltip.classList.remove('visible');
+    });
+
+    // Click to show detail panel
+    gEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const total = HOUSE_COUNTS[num];
+        const half = Math.ceil(total / 2);
+        const other = total - half;
+
+        const rect = gEl.querySelector('rect');
+        const w = parseFloat(rect.getAttribute('width'));
+        const h = parseFloat(rect.getAttribute('height'));
+        const isVert = h > w;
+
+        document.getElementById('panel-title').textContent = `Manzana ${num}`;
+
+        let html = `<p><b>${total} casas</b></p>`;
+        html += `<p class="side-label">${isVert ? 'Lado derecho' : 'Lado superior'}: Casas 1-${half}</p>`;
+        html += '<div class="house-grid">';
+        for (let i = 1; i <= half; i++) {
+            let cls = 'house-cell';
+            if (i === 1) cls += ' h1';
+            else if (i === 2) cls += ' h2';
+            html += `<div class="${cls}">${i}</div>`;
+        }
+        html += '</div>';
+        html += `<p class="side-label">${isVert ? 'Lado izquierdo' : 'Lado inferior'}: Casas ${half + 1}-${total}</p>`;
+        html += '<div class="house-grid">';
+        for (let i = half + 1; i <= total; i++) {
+            html += `<div class="house-cell">${i}</div>`;
+        }
+        html += '</div>';
+
+        document.getElementById('panel-content').innerHTML = html;
+        infoPanel.classList.add('visible');
+    });
+});
+
+document.getElementById('close-panel').addEventListener('click', () => {
+    infoPanel.classList.remove('visible');
+});
+document.addEventListener('click', (e) => {
+    if (!infoPanel.contains(e.target) && !e.target.closest('svg g[id^="M"]')) {
+        infoPanel.classList.remove('visible');
+    }
+});
+
+// ============================================================
+// LAYER TOGGLES
+// ============================================================
+const buttons = document.querySelectorAll('.controls button[data-layer]');
+
+const layerGroups = {
+    manzanas: 'svg g[id^="M"], #greens_horizontal, #greens_between, #greens_vertical, #PLAZA_BENITEZ, #PLAZA_SECUNDARIA, #CAPILLA, #CAPILLA-2, #Capilla, #JARDIN_929, #Secundaria',
+    casas: '#house-overlays',
+    calles: '#streets, #street-overlays, #barriers, #arrows',
+    accesos: '#Acceso_Principal, #Acceso_Florida',
+    traffic: '#traffic'
+};
+
+const allSelectors = Object.values(layerGroups).join(', ') +
+    ', #Barrio_TAG, #Brujula, #AV\\._Bernabe, #Arroyo_Moron, #ARBOLES, #controls, #gps_points, #overlays' +
+    ', #Fondo_balnco_mapa_00000093898162106876678600000007050969107240432524_';
+
+function showAll() {
+    document.querySelectorAll(allSelectors).forEach(el => {
+        el.style.opacity = '1'; el.style.transition = 'opacity 0.3s';
+    });
+}
+
+function dimAll() {
+    document.querySelectorAll(allSelectors).forEach(el => {
+        el.style.opacity = '0.12'; el.style.transition = 'opacity 0.3s';
+    });
+}
+
+function highlightLayer(name) {
+    if (name === 'all') { showAll(); return; }
+    dimAll();
+
+    // Always show background
+    document.querySelectorAll('#Barrio_TAG, #Brujula, #AV\\._Bernabe, #Arroyo_Moron, #Fondo_balnco_mapa_00000093898162106876678600000007050969107240432524_').forEach(el => {
+        el.style.opacity = '1';
+    });
+
+    // Show selected layer
+    if (layerGroups[name]) {
+        document.querySelectorAll(layerGroups[name]).forEach(el => {
+            el.style.opacity = '1';
+        });
+    }
+
+    // Contextual additions
+    if (name === 'casas') {
+        document.querySelectorAll(layerGroups.manzanas).forEach(el => { el.style.opacity = '1'; });
+        document.querySelectorAll('#barriers').forEach(el => { el.style.opacity = '0.5'; });
+    }
+    if (name === 'calles') {
+        document.querySelectorAll(layerGroups.manzanas).forEach(el => { el.style.opacity = '0.6'; });
+        document.querySelectorAll('#traffic').forEach(el => { el.style.opacity = '0.7'; });
+    }
+    if (name === 'manzanas') {
+        document.querySelectorAll('#barriers, #streets').forEach(el => { el.style.opacity = '0.5'; });
+    }
+    if (name === 'accesos') {
+        document.querySelectorAll('#barriers').forEach(el => { el.style.opacity = '0.5'; });
+    }
+    if (name === 'traffic') {
+        document.querySelectorAll('#streets, #barriers').forEach(el => { el.style.opacity = '0.5'; });
+        document.querySelectorAll(layerGroups.manzanas).forEach(el => { el.style.opacity = '0.5'; });
+    }
+}
+
+buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        highlightLayer(btn.dataset.layer);
+    });
+});
+
+// ============================================================
+// INIT
+// ============================================================
+generateHouseOverlays();
+generateStreetOverlays();
+</script>
 </body>
 </html>
