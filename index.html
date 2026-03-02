@@ -84,10 +84,10 @@
         .house-centerline { stroke: #999; stroke-width: 0.3; stroke-dasharray: 0.8,0.8; opacity: 0.5; }
         .house-divider { stroke: #bbb; stroke-width: 0.12; opacity: 0.4; }
         /* Street labels */
-        .st-label { font-size: 3.2px; fill: #555; font-family: Arial, sans-serif; font-weight: bold; text-anchor: middle; opacity: 0.7; }
-        .st-label-ec { font-size: 2.6px; fill: #8E6BBE; font-family: Arial, sans-serif; font-weight: bold; text-anchor: middle; opacity: 0.7; }
-        .st-bidir { font-size: 3.5px; fill: #777; font-family: Arial; text-anchor: middle; opacity: 0.6; }
-        .st-bidir-ec { font-size: 3px; fill: #8E6BBE; font-family: Arial; text-anchor: middle; opacity: 0.5; }
+        .st-label { font-size: 3.4px; fill: #333; font-family: Arial, sans-serif; font-weight: bold; text-anchor: middle; opacity: 1; }
+        .st-label-ec { font-size: 2.8px; fill: #6A3FA0; font-family: Arial, sans-serif; font-weight: bold; text-anchor: middle; opacity: 1; }
+        .st-bidir { font-size: 3.5px; fill: #444; font-family: Arial; text-anchor: middle; opacity: 0.9; }
+        .st-bidir-ec { font-size: 3px; fill: #6A3FA0; font-family: Arial; text-anchor: middle; opacity: 0.85; }
         footer { width: 100%; text-align: center; padding: 10px; font-size: 0.68rem; color: #888; }
         @media (max-width: 600px) {
             header h1 { font-size: 1.1rem; }
@@ -1268,8 +1268,8 @@ function makeRealistic() {
     // --- A) PLANO: Very subtle asphalt tint (not heavy gray!) ---
     const plano = document.getElementById('PLANO');
     if (plano) {
-        plano.style.fill = '#D5D3CE';
-        plano.style.fillOpacity = '0.35';
+        plano.style.fill = '#E8E6E1';
+        plano.style.fillOpacity = '0.5';
     }
 
     // --- B) Subtle Av. Bernabe Marquez road ---
@@ -1412,42 +1412,44 @@ function generateStreetLabels() {
 
     // Helper to add a label + bidirectional arrow
     function addVLabel(id, x, y, bidir) {
-        const lbl = ce('text', { x: x + 3.5, y: y + 8, class: 'st-label',
-            transform: `rotate(90, ${x + 3.5}, ${y + 8})` });
+        const cx = x + 3;
+        const lbl = ce('text', { x: cx, y: y + 10, class: 'st-label',
+            transform: `rotate(90, ${cx}, ${y + 10})` });
         lbl.textContent = id;
         g.appendChild(lbl);
         if (bidir) {
-            const arr = ce('text', { x: x, y: y + 22, class: 'st-bidir', 'dominant-baseline': 'central' });
+            const arr = ce('text', { x: cx, y: y + 21, class: 'st-bidir', 'dominant-baseline': 'central' });
             arr.textContent = '\u2195';
             g.appendChild(arr);
         }
     }
     function addHLabel(id, x, y, bidir) {
-        const lbl = ce('text', { x: x + 8, y: y - 1.5, class: 'st-label' });
-        lbl.textContent = id;
-        g.appendChild(lbl);
         if (bidir) {
-            const arr = ce('text', { x: x + 25, y: y, class: 'st-bidir', 'dominant-baseline': 'central' });
+            const arr = ce('text', { x: x + 1, y: y - 1.2, class: 'st-bidir', 'dominant-baseline': 'central' });
             arr.textContent = '\u2194';
             g.appendChild(arr);
         }
-    }
-    function addECVLabel(id, x, y) {
-        const lbl = ce('text', { x: x + 2.5, y: y + 6, class: 'st-label-ec',
-            transform: `rotate(90, ${x + 2.5}, ${y + 6})` });
+        const lbl = ce('text', { x: x + 7, y: y - 1.5, class: 'st-label' });
         lbl.textContent = id;
         g.appendChild(lbl);
-        const arr = ce('text', { x: x, y: y + 16, class: 'st-bidir-ec', 'dominant-baseline': 'central' });
+    }
+    function addECVLabel(id, x, y) {
+        const cx = x + 2.5;
+        const lbl = ce('text', { x: cx, y: y + 8, class: 'st-label-ec',
+            transform: `rotate(90, ${cx}, ${y + 8})` });
+        lbl.textContent = id;
+        g.appendChild(lbl);
+        const arr = ce('text', { x: cx, y: y + 19, class: 'st-bidir-ec', 'dominant-baseline': 'central' });
         arr.textContent = '\u2195';
         g.appendChild(arr);
     }
     function addECHLabel(id, x, y) {
-        const lbl = ce('text', { x: x + 6, y: y - 0.8, class: 'st-label-ec' });
-        lbl.textContent = id;
-        g.appendChild(lbl);
-        const arr = ce('text', { x: x + 18, y: y, class: 'st-bidir-ec', 'dominant-baseline': 'central' });
+        const arr = ce('text', { x: x, y: y - 0.5, class: 'st-bidir-ec', 'dominant-baseline': 'central' });
         arr.textContent = '\u2194';
         g.appendChild(arr);
+        const lbl = ce('text', { x: x + 5, y: y - 0.8, class: 'st-label-ec' });
+        lbl.textContent = id;
+        g.appendChild(lbl);
     }
 
     // ---- MAIN VERTICAL STREETS (Calles Verticales) ----
@@ -1718,8 +1720,8 @@ function hl(name) {
         document.querySelectorAll('#barriers').forEach(el => { el.style.opacity = '0.4'; });
     }
     if (name === 'calles') {
-        document.querySelectorAll(layers.manzanas).forEach(el => { el.style.opacity = '0.5'; });
-        document.querySelectorAll('#traffic').forEach(el => { el.style.opacity = '0.6'; });
+        document.querySelectorAll(layers.manzanas).forEach(el => { el.style.opacity = '0.6'; });
+        document.querySelectorAll('#traffic').forEach(el => { el.style.opacity = '0.7'; });
     }
     if (name === 'manzanas') document.querySelectorAll('#barriers, #streets').forEach(el => { el.style.opacity = '0.4'; });
     if (name === 'accesos') document.querySelectorAll('#barriers').forEach(el => { el.style.opacity = '0.4'; });
@@ -1743,6 +1745,7 @@ buttons.forEach(btn => {
 makeRealistic();
 generateHouseOverlays();
 generateStreetLabels();
+showAll();
 </script>
 </body>
 </html>
